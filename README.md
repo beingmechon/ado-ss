@@ -60,6 +60,40 @@ In the app settings, tap **Use as screensaver** and select **Stand**.
 Each push builds the APK with GitHub Actions (`.github/workflows/build.yml`).
 To build on a computer with the Android SDK: `gradle :app:assembleDebug`.
 
+## Signing key
+
+Without a key, the build publishes debug APKs. They use a public test key, which is not safe for a public release.
+To sign the APKs with your own private key, do these steps one time on a computer:
+
+1. Make the key (Java must be installed). Use a strong password and keep the file safe:
+
+   ```
+   keytool -genkeypair -v -keystore release.jks -alias stand -keyalg RSA -keysize 4096 -validity 10000
+   ```
+
+2. Change the file to text:
+
+   ```
+   base64 -w 0 release.jks > release.txt        # Linux
+   base64 -i release.jks -o release.txt         # macOS
+   ```
+
+3. In GitHub, open the repository Settings > Secrets and variables > Actions. Add these 4 secrets:
+
+   | Secret | Value |
+   | --- | --- |
+   | `KEYSTORE_BASE64` | The contents of `release.txt` |
+   | `KEYSTORE_PASSWORD` | The keystore password |
+   | `KEY_ALIAS` | `stand` |
+   | `KEY_PASSWORD` | The key password (usually the same as the keystore password) |
+
+4. Push a commit to `main`, or start the "Build APK" workflow by hand.
+
+Keep a copy of `release.jks` and the password in a safe place. If you lose them, users cannot update the app.
+Do not put `release.jks` in the repository.
+
+A change of key makes the old installed app incompatible. Uninstall the old app one time.
+
 ## F-Droid
 
 - `fastlane/metadata/android/en-US/` has the store text, the icon and the screenshots.

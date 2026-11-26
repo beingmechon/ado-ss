@@ -33,9 +33,25 @@ android {
         }
     }
 
+    // The release key is private. The build gets it from environment variables.
+    // Without them, the release APK is not signed. F-Droid uses that and signs with its own key.
+    val keyFile = System.getenv("STAND_KEYSTORE_FILE")
+    val hasReleaseKey = !keyFile.isNullOrBlank() && file(keyFile).exists()
+    if (hasReleaseKey) {
+        signingConfigs.create("release") {
+            storeFile = file(keyFile!!)
+            storePassword = System.getenv("STAND_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("STAND_KEY_ALIAS")
+            keyPassword = System.getenv("STAND_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("debug")
+        }
+        release {
+            if (hasReleaseKey) signingConfig = signingConfigs.getByName("release")
         }
     }
 

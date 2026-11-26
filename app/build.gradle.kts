@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "dev.ado.standby"
+    namespace = "io.github.beingmechon.stand"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "dev.ado.standby"
+        applicationId = "io.github.beingmechon.stand"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 1
+        versionName = "1.0"
     }
 
     // "lite" has no notification listener. Google Play Protect blocks the install of

@@ -1,0 +1,28 @@
+# Draft of the F-Droid build recipe. Copy this file to the "metadata" folder of
+# https://gitlab.com/fdroid/fdroiddata in a merge request.
+# Before that: make the tag v1.0 and put the full commit hash below.
+Categories:
+  - Time
+  - Theming
+License: GPL-3.0-only
+AuthorName: beingmechon
+SourceCode: https://github.com/beingmechon/ado-ss
+IssueTracker: https://github.com/beingmechon/ado-ss/issues
+
+AutoName: Stand
+
+RepoType: git
+Repo: https://github.com/beingmechon/ado-ss.git
+
+Builds:
+  - versionName: '1.0'
+    versionCode: 1
+    commit: PUT_THE_FULL_COMMIT_HASH_OF_TAG_v1.0_HERE
+    subdir: app
+    gradle:
+      - lite
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v[0-9.]+$
+CurrentVersion: '1.0'
+CurrentVersionCode: 1

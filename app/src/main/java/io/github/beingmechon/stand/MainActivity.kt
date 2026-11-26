@@ -1,4 +1,4 @@
-package dev.ado.standby
+package io.github.beingmechon.stand
 
 import android.app.Activity
 import android.content.Intent

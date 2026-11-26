@@ -1,0 +1,25 @@
+Stand changes a phone on a stand or a charger into a clock display.
+
+<b>Themes</b>
+12 themes: Tactical, Orbit, Flip, Minimal, Space, Dots, LED, Words, Analog, Neon, Mega and Radar. Swipe left or right to change the theme. Swipe up or down to change the colour.
+
+<b>Your style</b>
+* 11 colours and a slider for your own colour
+* Glow, colour gradient and 7 clock fonts
+* Animated backgrounds: stars, fireflies, neon grid, waves, pulse
+* Date, battery level and a line of your own text
+* A live preview in the settings
+
+<b>Made for a stand</b>
+* The app reads the tilt sensor and turns the picture itself. It works when auto-rotate is off.
+* It can be the system screensaver, which starts when the device charges.
+
+<b>Low power</b>
+* A black background with few lit pixels, for AMOLED screens
+* On battery, the screen updates one time each second or each minute. The animation is smooth only when the device charges, unless you change this.
+* A timer lets the screen go off on battery
+* Pixel shift prevents screen burn-in
+* Night mode: dim or red from 22:00 to 06:00
+
+<b>Privacy</b>
+The app has no internet permission, no advertisements and no trackers.

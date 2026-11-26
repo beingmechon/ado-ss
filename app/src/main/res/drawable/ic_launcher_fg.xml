@@ -12,7 +12,7 @@
     <path
         android:pathData="M54,32a22,22 0,1 1,-22,22"
         android:strokeWidth="4"
-        android:strokeColor="#A3BA6C"
+        android:strokeColor="#86994A"
         android:strokeLineCap="round" />
     <!-- Hands -->
     <path

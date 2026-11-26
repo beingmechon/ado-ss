@@ -59,3 +59,14 @@ In the app settings, tap **Use as screensaver** and select **Stand**.
 
 Each push builds the APK with GitHub Actions (`.github/workflows/build.yml`).
 To build on a computer with the Android SDK: `gradle :app:assembleDebug`.
+
+## F-Droid
+
+- `fastlane/metadata/android/en-US/` has the store text, the icon and the screenshots.
+  The screenshots are computer renders. Replace them with real ones before the first release.
+- `docs/fdroid/io.github.beingmechon.stand.yml` is a draft of the F-Droid build recipe.
+- F-Droid builds the `lite` flavour: `./gradlew :app:assembleLiteRelease`.
+
+## Licence
+
+GPL-3.0-only. See `LICENSE`.

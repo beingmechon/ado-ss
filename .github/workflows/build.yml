@@ -19,11 +19,9 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.14.3
 
       - name: Build the APKs
-        run: gradle --no-daemon :app:assembleLiteDebug :app:assembleFullDebug
+        run: ./gradlew --no-daemon :app:assembleLiteDebug :app:assembleFullDebug :app:assembleLiteRelease
 
       - name: Rename the APKs
         run: |

@@ -1,4 +1,4 @@
-package dev.ado.standby
+package io.github.beingmechon.stand
 
 import android.content.Context
 import android.content.SharedPreferences

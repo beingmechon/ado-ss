@@ -11,6 +11,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.BatteryManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -117,7 +118,12 @@ class StandView(ctx: Context, private val interactive: Boolean, private val prev
             addAction(Intent.ACTION_TIMEZONE_CHANGED)
             addAction(Intent.ACTION_TIME_CHANGED)
         }
-        context.registerReceiver(receiver, f, Context.RECEIVER_NOT_EXPORTED)?.let { readBattery(it) }
+        val sticky = if (Build.VERSION.SDK_INT >= 33) {
+            context.registerReceiver(receiver, f, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, f)
+        }
+        sticky?.let { readBattery(it) }
         Prefs.sp(context).registerOnSharedPreferenceChangeListener(this)
         Hub.onChange = { invalidate() }
         media.start()
@@ -199,11 +205,14 @@ class StandView(ctx: Context, private val interactive: Boolean, private val prev
         val x = e.values[0]
         val y = e.values[1]
         // The axis that points up shows a value near +9.8.
-        val q = when {
+        val raw = when {
             abs(y) > 5.5f && abs(y) > abs(x) + 2f -> if (y > 0) 0 else 2
             abs(x) > 5.5f && abs(x) > abs(y) + 2f -> if (x > 0) 1 else 3
-            else -> return // The phone is flat or between two positions. Keep the picture.
+            else -> return // The device is flat or between two positions. Keep the picture.
         }
+        // The sensor uses the natural position of the device. On some tablets and foldable
+        // devices the system already turned the screen, so subtract that turn.
+        val q = (raw - (display?.rotation ?: 0) + 4) % 4
         if (q == pendingQuad) pendingCount++ else { pendingQuad = q; pendingCount = 1 }
         if (pendingCount >= 2 && q != quad) {
             quad = q

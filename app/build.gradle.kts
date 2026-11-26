@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "dev.ado.standby"
-        minSdk = 33
+        minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     // "lite" has no notification listener. Google Play Protect blocks the install of

@@ -58,11 +58,11 @@ object Prefs {
         "LED", "Words", "Analog", "Neon", "Mega", "Radar",
     )
     val ACCENTS = listOf(
-        "Olive", "Amber", "Cyan", "Red", "White", "Violet",
+        "Army green", "Amber", "Cyan", "Red", "White", "Violet",
         "Lime", "Pink", "Orange", "Blue", "Mint", "Custom (use the slider)",
     )
     val ACCENT_COLORS = intArrayOf(
-        0xFFA3BA6C.toInt(), 0xFFFFB000.toInt(), 0xFF35D6E6.toInt(),
+        0xFF86994A.toInt(), 0xFFFFB000.toInt(), 0xFF35D6E6.toInt(),
         0xFFFF5050.toInt(), 0xFFF2F2F2.toInt(), 0xFFB48CFF.toInt(),
         0xFFB6FF3C.toInt(), 0xFFFF4FA3.toInt(), 0xFFFF7A1A.toInt(),
         0xFF4D8DFF.toInt(), 0xFF3DFFB0.toInt(), 0,

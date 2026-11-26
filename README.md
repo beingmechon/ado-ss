@@ -1,6 +1,6 @@
 # Stand
 
-A clock display for a phone on a stand. Made for the Galaxy S25 Ultra.
+A clock display for a phone on a stand. It works on phones and tablets with Android 8.0 or later. All sizes use the screen size, so the layout fits each screen.
 
 - 12 themes: Tactical, Orbit, Flip, Minimal, Space, Dots, LED, Words, Analog, Neon, Mega, Radar.
 - Animated backgrounds: stars, fireflies, neon grid, waves, pulse.

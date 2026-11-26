@@ -28,7 +28,7 @@ import kotlin.math.abs
  * The stand display. It draws the clock, reads the tilt sensor and the battery,
  * and turns the picture itself. Thus it does not use the auto-rotate setting of the phone.
  */
-class StandView(ctx: Context, private val interactive: Boolean) :
+class StandView(ctx: Context, private val interactive: Boolean, private val preview: Boolean = false) :
     View(ctx), SensorEventListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     var onOpenSettings: (() -> Unit)? = null
@@ -47,6 +47,7 @@ class StandView(ctx: Context, private val interactive: Boolean) :
     private val media = MediaWatcher(ctx) { invalidate() }
     private var cal = Calendar.getInstance()
     private var dateDay = -1
+    private var dateFormat = -1
     private var running = false
     private var sensorOn = false
     private var startAt = 0L
@@ -79,11 +80,20 @@ class StandView(ctx: Context, private val interactive: Boolean) :
         override fun onFling(e1: MotionEvent?, e2: MotionEvent, vx: Float, vy: Float): Boolean {
             // Change the screen speed to the speed in the turned picture.
             val v = when (quad) { 1 -> vy; 2 -> -vx; 3 -> -vy; else -> vx }
-            val other = if (quad == 1 || quad == 3) vx else vy
-            if (abs(v) < 800f || abs(v) < abs(other)) return false
-            val n = Prefs.THEMES.size
-            val next = (cfg.theme + (if (v < 0) 1 else n - 1)) % n
-            Prefs.sp(context).edit().putInt(Prefs.THEME, next).apply()
+            val other = when (quad) { 1 -> -vx; 2 -> -vy; 3 -> vx; else -> vy }
+            if (abs(v) < 800f && abs(other) < 800f) return false
+            if (abs(v) >= abs(other)) {
+                // Left or right: the next or the previous theme.
+                val n = Prefs.THEMES.size
+                val next = (cfg.theme + (if (v < 0) 1 else n - 1)) % n
+                Prefs.sp(context).edit().putInt(Prefs.THEME, next).putInt(Prefs.AUTO_THEME, 0).apply()
+            } else {
+                // Up or down: the next or the previous colour. The custom colour is not in this cycle.
+                val n = Prefs.ACCENTS.size - 1
+                val cur = cfg.accent.coerceAtMost(n - 1)
+                val next = (cur + (if (other < 0) 1 else n - 1)) % n
+                Prefs.sp(context).edit().putInt(Prefs.ACCENT, next).apply()
+            }
             return true
         }
 
@@ -164,6 +174,7 @@ class StandView(ctx: Context, private val interactive: Boolean) :
     }
 
     private fun applyOrientation() {
+        if (preview) { quad = 0; return }
         when (cfg.orientation) {
             1 -> { quad = 0; setSensor(false) }
             2 -> { quad = 1; setSensor(false) }
@@ -224,9 +235,10 @@ class StandView(ctx: Context, private val interactive: Boolean) :
             else -> DateFormat.is24HourFormat(context)
         }
         val day = cal.get(Calendar.DAY_OF_YEAR)
-        if (day != dateDay) {
+        if (day != dateDay || cfg.dateFormat != dateFormat) {
             dateDay = day
-            s.dateText = SimpleDateFormat("EEE d MMM", Locale.getDefault()).format(Date(now)).uppercase()
+            dateFormat = cfg.dateFormat
+            s.dateText = SimpleDateFormat(Prefs.DATE_PATTERNS[dateFormat], Locale.getDefault()).format(Date(now)).uppercase()
         }
         s.charging = charging
         s.musicTitle = media.title
@@ -256,7 +268,7 @@ class StandView(ctx: Context, private val interactive: Boolean) :
     companion object {
         private const val FRAME_MS = 42L
         private const val HINT_MS = 7000L
-        private const val HINT_LITE = "Swipe: theme  \u00B7  Hold: settings"
-        private const val HINT = "Swipe: theme  ·  Hold: settings  ·  Double-tap: play/pause"
+        private const val HINT_LITE = "Swipe left/right: theme  \u00B7  up/down: colour  \u00B7  Hold: settings"
+        private const val HINT = "Swipe left/right: theme  \u00B7  up/down: colour  \u00B7  Hold: settings  \u00B7  Double-tap: music"
     }
 }

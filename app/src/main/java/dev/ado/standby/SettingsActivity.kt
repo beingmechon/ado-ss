@@ -10,7 +10,9 @@ import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.EditText
 import android.widget.ScrollView
+import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
 
@@ -18,6 +20,7 @@ import android.widget.TextView
 class SettingsActivity : Activity() {
     private lateinit var sp: SharedPreferences
     private lateinit var root: LinearLayout
+    private lateinit var preview: StandView
     private var d = 1f
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,17 +31,30 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20), dp(12), dp(20), dp(40))
         }
-        val scroll = ScrollView(this).apply {
+        val scroll = ScrollView(this).apply { addView(root) }
+        // A live preview stays at the top. It shows each change immediately.
+        preview = StandView(this, false, true)
+        val page = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.BLACK)
             fitsSystemWindows = true
-            addView(root)
+            addView(preview, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(190)))
+            addView(View(this@SettingsActivity).apply { setBackgroundColor(0xFF2B2B2B.toInt()) },
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1)))
+            addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         }
-        setContentView(scroll)
+        setContentView(page)
     }
 
     override fun onResume() {
         super.onResume()
+        preview.start()
         build()
+    }
+
+    override fun onPause() {
+        preview.stop()
+        super.onPause()
     }
 
     private fun dp(v: Int) = (v * d).toInt()
@@ -50,12 +66,23 @@ class SettingsActivity : Activity() {
 
         header("Look")
         choice("Theme", Prefs.THEME, Prefs.THEMES, c.theme)
+        choice("Change the theme automatically", Prefs.AUTO_THEME, Prefs.AUTO_NAMES, c.autoTheme)
+        choice("Background", Prefs.BACKDROP, Prefs.BACKDROPS, c.backdrop)
+        choice("Clock font", Prefs.FONT, Prefs.FONTS, c.font)
+        toggle("Glow", Prefs.GLOW, c.glow)
+        toggle("Colour gradient", Prefs.GRADIENT, c.gradient)
+
+        header("Colour")
         choice("Accent colour", Prefs.ACCENT, Prefs.ACCENTS, c.accent)
-        choice("Clock format", Prefs.HOUR_MODE, Prefs.HOUR_MODES, c.hourMode)
+        slider("Custom colour", Prefs.HUE, c.hue)
+        choice("Night mode", Prefs.NIGHT, Prefs.NIGHTS, c.night)
 
         header("Show")
         toggle("Seconds", Prefs.SECONDS, c.showSeconds)
         toggle("Date", Prefs.DATE, c.showDate)
+        choice("Date format", Prefs.DATE_FORMAT, Prefs.DATE_FORMATS, c.dateFormat)
+        choice("Clock format", Prefs.HOUR_MODE, Prefs.HOUR_MODES, c.hourMode)
+        textRow("Your text", Prefs.CUSTOM_TEXT, c.customText)
         toggle("Battery level", Prefs.BATTERY, c.showBattery)
         if (Hub.available(this)) {
             toggle("Music that plays now", Prefs.MUSIC, c.showMusic)
@@ -140,6 +167,44 @@ class SettingsActivity : Activity() {
                     dialog.dismiss()
                     build()
                 }
+                .show()
+        }
+    }
+
+    /** A slider for the hue of the custom colour. A touch selects the custom colour. */
+    private fun slider(label: String, key: String, value: Int) {
+        root.addView(text(label, 16f, Color.WHITE).apply { setPadding(0, dp(8), 0, 0) })
+        val bar = SeekBar(this).apply {
+            max = 360
+            progress = value
+            minimumHeight = dp(48)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: SeekBar?, v: Int, fromUser: Boolean) {
+                    if (!fromUser) return
+                    sp.edit().putInt(key, v).putInt(Prefs.ACCENT, Prefs.ACCENTS.size - 1).apply()
+                }
+                override fun onStartTrackingTouch(sb: SeekBar?) {}
+                override fun onStopTrackingTouch(sb: SeekBar?) { build() }
+            })
+        }
+        root.addView(bar, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+    }
+
+    private fun textRow(label: String, key: String, value: String) {
+        action(label, if (value.isBlank()) "None. Tap to add a name or a short message." else value) {
+            val edit = EditText(this).apply {
+                setText(value)
+                setSingleLine()
+                hint = "For example: STAY FOCUSED"
+            }
+            AlertDialog.Builder(this)
+                .setTitle(label)
+                .setView(edit)
+                .setPositiveButton("OK") { _, _ ->
+                    sp.edit().putString(key, edit.text.toString().trim().take(60)).apply()
+                    build()
+                }
+                .setNegativeButton("Cancel", null)
                 .show()
         }
     }

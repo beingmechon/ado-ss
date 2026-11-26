@@ -7,6 +7,7 @@ import android.graphics.Typeface
 import android.text.TextPaint
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -16,12 +17,14 @@ private const val AA = Paint.ANTI_ALIAS_FLAG
 
 /** Theme 1: a rugged head-up display. It agrees with the olive case. */
 class Tactical : Theme {
-    private val big = TextPaint(AA).apply { typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD) }
+    private val face = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+    private val big = TextPaint(AA)
     private val mono = TextPaint(AA).apply { typeface = Typeface.MONOSPACE }
     private val p = Paint(AA)
 
     override fun draw(c: Canvas, r: RectF, s: Scene, pal: Pal, u: Float, cfg: Config) {
         val wide = r.width() > r.height()
+        big.typeface = pal.face(face)
         // Corner brackets.
         p.style = Paint.Style.STROKE
         p.strokeWidth = 0.5f * u
@@ -68,23 +71,26 @@ class Tactical : Theme {
             val wc = big.measureText(":")
             val wm = big.measureText(s.mm)
             var x = cx - (wh + wc + wm) / 2f
-            big.color = pal.fg
+            val cap = G.capHeight(big) / 2f
+            G.ink(big, pal, pal.fg, cy - cap, cy + cap, u)
             G.text(c, s.hh, x, cy, big)
             x += wh
-            big.color = if (s.animated) pal.accentA((150 + 105 * sin(s.t * PI.toFloat())).toInt()) else pal.accent
+            G.ink(big, pal, if (s.animated) pal.accentA((150 + 105 * sin(s.t * PI.toFloat())).toInt()) else pal.accent, cy - cap, cy + cap, u)
             G.text(c, ":", x, cy, big)
             x += wc
-            big.color = pal.fg
+            G.ink(big, pal, pal.fg, cy - cap, cy + cap, u)
             G.text(c, s.mm, x, cy, big)
         } else {
             G.fit(big, "88", r.width() * 0.74f, availH * 0.41f)
             big.textAlign = Paint.Align.CENTER
-            val off = G.capHeight(big) / 2f + availH * 0.035f
-            big.color = pal.fg
+            val cap = G.capHeight(big) / 2f
+            val off = cap + availH * 0.035f
+            G.ink(big, pal, pal.fg, cy - off - cap, cy - off + cap, u)
             G.text(c, s.hh, cx, cy - off, big)
-            big.color = pal.accent
+            G.ink(big, pal, pal.accent, cy + off - cap, cy + off + cap, u)
             G.text(c, s.mm, cx, cy + off, big)
         }
+        G.plain(big)
 
         if (cfg.showSeconds) {
             // 60 small blocks. One block comes on each second.
@@ -115,7 +121,8 @@ class Tactical : Theme {
 
 /** Theme 2: three rings for hours, minutes and seconds. */
 class Orbit : Theme {
-    private val tp = TextPaint(AA).apply { typeface = Typeface.create("sans-serif-light", Typeface.NORMAL) }
+    private val face = Typeface.create("sans-serif-light", Typeface.NORMAL)
+    private val tp = TextPaint(AA)
     private val p = Paint(AA)
     private val oval = RectF()
 
@@ -147,10 +154,12 @@ class Orbit : Theme {
             }
         }
         val inner = (ring - 3f * u) * 2f
+        tp.typeface = pal.face(face)
         G.fit(tp, "88:88", inner * 0.8f, inner * 0.3f)
         tp.textAlign = Paint.Align.CENTER
-        tp.color = pal.fg
+        G.ink(tp, pal, pal.fg, 0f, 1f, u)
         G.text(c, "${s.hh}:${s.mm}", cx, cy, tp)
+        G.plain(tp)
     }
 
     private fun arc(c: Canvas, cx: Float, cy: Float, rad: Float, f: Float, w: Float, color: Int, pal: Pal, u: Float) {
@@ -250,14 +259,16 @@ class Flip : Theme {
 
 /** Theme 4: thin digits and nothing more. It uses the least power. */
 class Minimal : Theme {
-    private val big = TextPaint(AA).apply { typeface = Typeface.create("sans-serif-thin", Typeface.NORMAL) }
+    private val face = Typeface.create("sans-serif-thin", Typeface.NORMAL)
+    private val big = TextPaint(AA)
     private val small = TextPaint(AA).apply { typeface = Typeface.create("sans-serif-light", Typeface.NORMAL) }
 
     override fun draw(c: Canvas, r: RectF, s: Scene, pal: Pal, u: Float, cfg: Config) {
         val wide = r.width() > r.height()
+        big.typeface = pal.face(face)
         val cx = r.centerX()
         val cy = r.centerY()
-        val accent = if (s.animated) pal.accentA((205 + 50 * sin(s.t * 0.8f)).toInt()) else pal.accent
+        val accent = pal.accent
         val below: Float
         if (wide) {
             G.fit(big, "88:88", r.width() * 0.9f, r.height() * 0.6f)
@@ -265,25 +276,29 @@ class Minimal : Theme {
             val wh = big.measureText(s.hh)
             val wc = big.measureText(":")
             var x = cx - (wh + wc + big.measureText(s.mm)) / 2f
-            big.color = pal.fg
+            val cap = G.capHeight(big) / 2f
+            G.ink(big, pal, pal.fg, cy - cap, cy + cap, u)
             G.text(c, s.hh, x, cy, big)
             x += wh
+            G.plain(big)
             big.color = pal.dim
             G.text(c, ":", x, cy, big)
             x += wc
-            big.color = accent
+            G.ink(big, pal, accent, cy - cap, cy + cap, u)
             G.text(c, s.mm, x, cy, big)
-            below = cy + G.capHeight(big) / 2f
+            below = cy + cap
         } else {
             G.fit(big, "88", r.width() * 0.8f, r.height() * 0.36f)
             big.textAlign = Paint.Align.CENTER
-            val off = G.capHeight(big) / 2f + r.height() * 0.04f
-            big.color = pal.fg
+            val cap = G.capHeight(big) / 2f
+            val off = cap + r.height() * 0.04f
+            G.ink(big, pal, pal.fg, cy - off - cap, cy - off + cap, u)
             G.text(c, s.hh, cx, cy - off, big)
-            big.color = accent
+            G.ink(big, pal, accent, cy + off - cap, cy + off + cap, u)
             G.text(c, s.mm, cx, cy + off, big)
-            below = cy + off + G.capHeight(big) / 2f
+            below = cy + off + cap
         }
+        G.plain(big)
         if (cfg.showSeconds) {
             small.textSize = 4.2f * u
             small.letterSpacing = 0.3f
@@ -296,40 +311,18 @@ class Minimal : Theme {
 
 /** Theme 5: the time above a planet, with stars. */
 class Space : Theme {
-    private val tp = TextPaint(AA).apply { typeface = Typeface.create("sans-serif-light", Typeface.NORMAL) }
+    private val face = Typeface.create("sans-serif-light", Typeface.NORMAL)
+    private val tp = TextPaint(AA)
     private val p = Paint(AA)
-    private val n = 70
-    private val sx = FloatArray(n)
-    private val sy = FloatArray(n)
-    private val sz = FloatArray(n)
-    private val ph = FloatArray(n)
-
-    init {
-        val rnd = Random(7)
-        for (i in 0 until n) {
-            sx[i] = rnd.nextFloat()
-            sy[i] = rnd.nextFloat()
-            sz[i] = 0.3f + rnd.nextFloat() * rnd.nextFloat() * 0.9f
-            ph[i] = rnd.nextFloat() * 6.28f
-        }
-    }
+    private val stars = StarField(70, 7)
 
     override fun draw(c: Canvas, r: RectF, s: Scene, pal: Pal, u: Float, cfg: Config) {
         val wide = r.width() > r.height()
         val cx = r.centerX()
+        tp.typeface = pal.face(face)
         c.save()
         c.clipRect(r)
-        p.style = Paint.Style.FILL
-        for (i in 0 until n) {
-            var x = sx[i]
-            var a = 0.35f + 0.5f * abs(sin(ph[i]))
-            if (s.animated) {
-                x = (x + s.t * 0.0015f * sz[i]) % 1f
-                a = 0.25f + 0.75f * abs(sin(s.t * (0.3f + sz[i] * 0.5f) + ph[i]))
-            }
-            p.color = if (i % 9 == 0) pal.accentA((a * 255).toInt()) else (0xFFFFFF or ((a * 215).toInt() shl 24))
-            c.drawCircle(r.left + x * r.width(), r.top + sy[i] * r.height(), sz[i] * 0.42f * u, p)
-        }
+        stars.draw(c, r.left, r.top, r.width(), r.height(), s, pal, u)
         if (s.animated) {
             // One shooting star each 15 seconds.
             val k = (s.t / 15f).toInt()
@@ -345,7 +338,7 @@ class Space : Theme {
                 p.strokeCap = Paint.Cap.ROUND
                 for (j in 0 until 6) {
                     p.strokeWidth = (0.45f - j * 0.06f) * u
-                    p.color = 0xFFFFFF or (((1f - f) * (200 - j * 32)).toInt().coerceIn(0, 255) shl 24)
+                    p.color = pal.fgA(((1f - f) * (200 - j * 32)).toInt())
                     val a0 = j / 6f
                     val a1 = (j + 1) / 6f
                     c.drawLine(hx - len * 0.9f * a0, hy - len * 0.4f * a0, hx - len * 0.9f * a1, hy - len * 0.4f * a1, p)
@@ -370,17 +363,20 @@ class Space : Theme {
 
         val cy = r.top + (r.height() - (if (wide) 9f else 14f) * u) * 0.47f
         tp.textAlign = Paint.Align.CENTER
-        tp.color = pal.fg
         if (wide) {
             G.fit(tp, "88:88", r.width() * 0.8f, r.height() * 0.46f)
+            G.ink(tp, pal, pal.fg, 0f, 1f, u)
             G.text(c, "${s.hh}:${s.mm}", cx, cy, tp)
         } else {
             G.fit(tp, "88", r.width() * 0.7f, r.height() * 0.3f)
-            val off = G.capHeight(tp) / 2f + r.height() * 0.035f
+            val cap = G.capHeight(tp) / 2f
+            val off = cap + r.height() * 0.035f
+            G.ink(tp, pal, pal.fg, 0f, 1f, u)
             G.text(c, s.hh, cx, cy - off, tp)
-            tp.color = pal.accent
+            G.ink(tp, pal, pal.accent, cy + off - cap, cy + off + cap, u)
             G.text(c, s.mm, cx, cy + off, tp)
         }
+        G.plain(tp)
         if (cfg.showSeconds) {
             // A small dot that moves along the planet edge one time each minute.
             val f = (s.second + if (s.animated) s.secFrac else 0f) / 60f

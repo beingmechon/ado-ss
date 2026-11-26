@@ -2,16 +2,26 @@
 
 A clock display for a phone on a stand. Made for the Galaxy S25 Ultra.
 
-- 5 themes: Tactical, Orbit, Flip, Minimal, Space. Swipe left or right to change.
-- Shows the time, date, battery level, the song that plays, and notification icons.
+- 12 themes: Tactical, Orbit, Flip, Minimal, Space, Dots, LED, Words, Analog, Neon, Mega, Radar.
+- Animated backgrounds: stars, fireflies, neon grid, waves, pulse.
+- 11 colours and a custom colour slider. Glow, colour gradient, and 7 clock fonts.
+- Shows the time, date, battery level, your own text, the song that plays, and notification icons.
 - Turns to vertical or horizontal with the tilt sensor. Auto-rotate can stay off.
 - Black background and few lit pixels, for low power on an AMOLED screen.
 - On battery, the screen updates one time each second (or each minute if seconds are off).
   When the phone charges, the animation is smooth.
+- Night mode (dim or red) from 22:00 to 06:00.
+- The settings screen has a live preview.
 
-![Tactical](docs/theme0.png)
+![Neon](docs/neon.png)
+![Mega](docs/mega.png)
+![Radar](docs/radar.png)
+![LED](docs/led.png)
+![Dots](docs/dots.png)
+![Words](docs/words.png)
+![Tactical](docs/tactical.png)
 
-The pictures in `docs/` are preview renders from a computer. Fonts on the phone are a little different.
+The pictures in `docs/` are preview renders from a computer. Fonts and glow on the phone are a little different.
 
 ## Install
 
@@ -29,6 +39,7 @@ Both files use the same key. You can install one on top of the other and keep yo
 | Action | Result |
 | --- | --- |
 | Swipe left / right | Change the theme |
+| Swipe up / down | Change the colour |
 | Touch and hold | Open the settings |
 | Double-tap | Play / pause the music |
 

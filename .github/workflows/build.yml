@@ -22,16 +22,20 @@ jobs:
         with:
           gradle-version: 8.14.3
 
-      - name: Build the debug APK
-        run: gradle --no-daemon :app:assembleDebug
+      - name: Build the APKs
+        run: gradle --no-daemon :app:assembleLiteDebug :app:assembleFullDebug
 
-      - name: Rename the APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk stand.apk
+      - name: Rename the APKs
+        run: |
+          cp app/build/outputs/apk/lite/debug/app-lite-debug.apk stand.apk
+          cp app/build/outputs/apk/full/debug/app-full-debug.apk stand-full.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: stand-apk
-          path: stand.apk
+          path: |
+            stand.apk
+            stand-full.apk
 
       - name: Publish the APK as the "latest" release
         uses: softprops/action-gh-release@v2
@@ -39,4 +43,6 @@ jobs:
           tag_name: latest
           name: Latest build
           prerelease: true
-          files: stand.apk
+          files: |
+            stand.apk
+            stand-full.apk

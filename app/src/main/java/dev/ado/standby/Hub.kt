@@ -19,6 +19,14 @@ object Hub {
     var icons: List<Bitmap> = emptyList()
     var onChange: (() -> Unit)? = null
 
+    /** False in the "lite" version, which has no notification listener. */
+    fun available(ctx: Context): Boolean = try {
+        ctx.packageManager.getServiceInfo(ComponentName(ctx, NotifService::class.java), 0)
+        true
+    } catch (e: Exception) {
+        false
+    }
+
     fun hasAccess(ctx: Context): Boolean {
         val list = Settings.Secure.getString(ctx.contentResolver, "enabled_notification_listeners") ?: return false
         return list.contains(ctx.packageName + "/")

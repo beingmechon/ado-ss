@@ -57,8 +57,10 @@ class SettingsActivity : Activity() {
         toggle("Seconds", Prefs.SECONDS, c.showSeconds)
         toggle("Date", Prefs.DATE, c.showDate)
         toggle("Battery level", Prefs.BATTERY, c.showBattery)
-        toggle("Music that plays now", Prefs.MUSIC, c.showMusic)
-        toggle("Notification icons", Prefs.NOTIFS, c.showNotifs)
+        if (Hub.available(this)) {
+            toggle("Music that plays now", Prefs.MUSIC, c.showMusic)
+            toggle("Notification icons", Prefs.NOTIFS, c.showNotifs)
+        }
 
         header("Power")
         choice("Motion", Prefs.MOTION, Prefs.MOTIONS, c.motion)
@@ -70,18 +72,22 @@ class SettingsActivity : Activity() {
         choice("Orientation", Prefs.ORIENTATION, Prefs.ORIENTATIONS, c.orientation)
 
         header("Access")
-        val access = Hub.hasAccess(this)
-        action(
-            "Notification access",
-            if (access) "On. Music and notification icons can show." else "Off. Tap to open the phone setting. Music and icons need it.",
-        ) { open(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS) }
+        if (Hub.available(this)) {
+            val access = Hub.hasAccess(this)
+            action(
+                "Notification access",
+                if (access) "On. Music and notification icons can show." else "Off. Tap to open the phone setting. Music and icons need it.",
+            ) { open(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS) }
+            note(
+                "If the phone shows \"Restricted setting\": open Settings > Apps > Stand > the 3 dots > " +
+                    "Allow restricted settings. Then try again.",
+            )
+        } else {
+            note("This is the Lite version. It cannot show music or notification icons. See the README for the Full version.")
+        }
         action("Use as screensaver", "Tap to open the phone screensaver setting. It starts when the phone charges.") {
             open(Settings.ACTION_DREAM_SETTINGS)
         }
-        note(
-            "If the phone shows \"Restricted setting\": open Settings > Apps > Stand > the 3 dots > " +
-                "Allow restricted settings. Then try again.",
-        )
     }
 
     private fun open(action: String) {

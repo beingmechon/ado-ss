@@ -15,9 +15,14 @@ The pictures in `docs/` are preview renders from a computer. Fonts on the phone 
 
 ## Install
 
-1. On the phone, open the **Releases** page of this repository and download `stand.apk` from "Latest build".
-2. Open the file and permit the install.
-3. Open **Stand**.
+There are two files on the **Releases** page ("Latest build"):
+
+| File | Music and notification icons | Install |
+| --- | --- | --- |
+| `stand.apk` (Lite) | No | Download on the phone and open it. |
+| `stand-full.apk` (Full) | Yes | Google Play Protect blocks it from a browser in some countries. Install it from a computer: `adb install -r stand-full.apk` |
+
+Both files use the same key. You can install one on top of the other and keep your settings.
 
 ## Use
 
@@ -29,7 +34,7 @@ The pictures in `docs/` are preview renders from a computer. Fonts on the phone 
 
 ## Music and notification icons
 
-These need "notification access".
+These are only in the Full version. They need "notification access".
 
 1. Touch and hold the screen to open the settings. Tap **Notification access**.
 2. If the phone shows "Restricted setting": open Settings > Apps > Stand > the 3 dots > **Allow restricted settings**. Then do step 1 again.

@@ -207,6 +207,8 @@ class StandView(ctx: Context, private val interactive: Boolean) :
         return gestures.onTouchEvent(event)
     }
 
+    private val hint = if (Hub.available(ctx)) HINT else HINT_LITE
+
     private fun updateScene() {
         val now = System.currentTimeMillis()
         val s = scene
@@ -234,7 +236,7 @@ class StandView(ctx: Context, private val interactive: Boolean) :
         s.animated = animated()
         val up = SystemClock.elapsedRealtime() - startAt
         s.t = up / 1000f
-        s.hint = if (interactive && up < HINT_MS) HINT else null
+        s.hint = if (interactive && up < HINT_MS) hint else null
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -254,6 +256,7 @@ class StandView(ctx: Context, private val interactive: Boolean) :
     companion object {
         private const val FRAME_MS = 42L
         private const val HINT_MS = 7000L
+        private const val HINT_LITE = "Swipe: theme  \u00B7  Hold: settings"
         private const val HINT = "Swipe: theme  ·  Hold: settings  ·  Double-tap: play/pause"
     }
 }

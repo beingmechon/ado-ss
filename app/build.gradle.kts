@@ -15,6 +15,14 @@ android {
         versionName = "1.0"
     }
 
+    // "lite" has no notification listener. Google Play Protect blocks the install of
+    // "full" from a browser in some countries, because of that listener.
+    flavorDimensions += "kind"
+    productFlavors {
+        create("lite") { dimension = "kind" }
+        create("full") { dimension = "kind" }
+    }
+
     signingConfigs {
         // A fixed key, so that a new build can update the installed app.
         getByName("debug") {
